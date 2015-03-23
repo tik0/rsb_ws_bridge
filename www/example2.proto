@@ -1,0 +1,8 @@
+import "number.proto";
+
+message MessageNumbered {
+
+    required string text = 1;
+    required number nr = 2;
+
+}
