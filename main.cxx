@@ -12,7 +12,7 @@
 #include <assert.h>
 #include <signal.h>
 
-// #include "SimpleConverter.h"
+#include "SimpleConverter.h"
 
 // For checking character pressed in the console
 // #include <kbhit.hpp>
