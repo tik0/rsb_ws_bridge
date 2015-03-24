@@ -1,0 +1,26 @@
+package rst.kinematics;
+
+import "rst/kinematics/LinearVelocities.proto";
+import "rst/kinematics/AngularVelocities.proto";
+
+option java_outer_classname = "TwistType";
+
+/**
+ * Twist representation of Cartesian velocities.
+ *
+ * @author Johannes Wienke <jwienke@techfak.uni-bielefeld.de>
+ * @author Leon Ziegler <lziegler@techfak.uni-bielefeld.de>
+ */
+message Twist {
+
+    /**
+     * 3-dimensional translatory velocities.
+     */
+    required LinearVelocities linear = 1;
+
+    /**
+     * 3-dimensional rotatory velocities.
+     */
+    required AngularVelocities angular = 2;
+
+}

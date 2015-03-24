@@ -28,3 +28,12 @@
 *.exe
 *.out
 *.app
+
+*ninja*
+.cproject
+.project
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+rsb_ws_bridge
+build

@@ -1,0 +1,31 @@
+package rst.kinematics;
+
+option java_outer_classname = "AngularVelocitiesType";
+
+/**
+ * Cartesian 3-dimensional rotational velocities.
+ *
+ * @author Johannes Wienke <jwienke@techfak.uni-bielefeld.de>
+ * @author Leon Ziegler <lziegler@techfak.uni-bielefeld.de>
+ */
+message AngularVelocities {
+
+    /**
+     * Velocity around the x axis.
+     */
+    // @unit(rad / second)
+    required float a = 1;
+
+    /**
+     * Velocity around the y axis.
+     */
+    // @unit(rad / second)
+    required float b = 2;
+
+    /**
+     * Velocity around the z axis.
+     */
+    // @unit(rad / second)
+    required float c = 3;
+
+}

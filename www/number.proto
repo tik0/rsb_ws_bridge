@@ -1,3 +1,0 @@
-message number {
-    required int64 nr = 1;
-}

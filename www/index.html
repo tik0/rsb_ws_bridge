@@ -10,13 +10,18 @@ if (typeof dcodeIO === 'undefined' || !dcodeIO.ProtoBuf) {
 }
 // Initialize ProtoBuf.js
 var ProtoBuf = dcodeIO.ProtoBuf;
-var test = ProtoBuf.loadProtoFile("./example2.proto").build("MessageNumbered");
-var test2 = ProtoBuf.loadProtoFile("./number.proto").build("number");
+var filename = {root:"./rst/kinematics", file:"Twist.proto"};
+var fileContent = ProtoBuf.Util.fetch(typeof filename === 'object' ? filename["root"]+"/"+filename["file"] : filename);
+// var twistMsg = ProtoBuf.loadProtoFile(contents).build("rst.kinematics.Twist");
+var twistMsg = ProtoBuf.loadProto(fileContent, null, "Twist.proto").build("rst.kinematics.Twist");
+
+// var twistMsg = ProtoBuf.loadProtoFile("./rst/kinematics/Twist.proto").build("rst.kinematics.Twist");
+
 </script>
 </head>
 <body>
 <textarea id="log" style="width: 100%; height: 200px"></textarea><br />
-<input type="text" id="text" value="hello world!" /> <button onclick="send()">Send</button>
+<input type="text" id="text" value="/myScope" /> <button onclick="send()">Set Scope</button>
 
 <script>
 var log = document.getElementById("log");
@@ -28,14 +33,9 @@ socket.binaryType = "arraybuffer"; // We are talking binary
 
 function send() {
     if (socket.readyState == WebSocket.OPEN) {
-        var msg = new test();
-        var msgNr = new test2();
-        msgNr.set("nr",2e64,true);
-        msg.set("text", text.value);
-        msg.set("nr", msgNr,true);
-        socket.send(msg.toArrayBuffer());
-//         log.value += "Sent: "+msg.get("text") + " " + msg.get("nr").get("nr") +"\n";
-        log.value += "Sent: " + String.fromCharCode.apply(null, new Uint8Array(msg.toArrayBuffer())) +"\n";
+        log.value = ""; // Clear log on new scope setup
+        socket.send(text.value);
+        log.value += "Receive scope: " + text.value +"\n";
     } else {
         log.value += "Not connected\n";
     }
@@ -51,11 +51,9 @@ socket.onclose = function() {
     
 socket.onmessage = function(evt) {
     try {
-        // Decode the MessageNumbered
-        var msg = test.decode(evt.data);
-//         var Number = msg.get("nr"); Number.get("nr")
-        log.value += "Received: "+msg.get("text") + " " + msg.get("nr").get("nr")  + " " +"\n";
-//         log.value += "Received: "+evt.data + " " +  " " +"\n";
+        // Decode the message
+        var msg = twistMsg.decode(evt.data);
+        log.value += "Received: v= " + msg.get("linear").get("x") + " m/s, w=" + msg.get("angular").get("c") +" rad/s\n";
     } catch (err) {
         log.value += "Error: "+err+"\n";
     }
