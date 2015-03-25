@@ -27,7 +27,6 @@
 
 // RST
 #include <rsb/converter/ProtocolBufferConverter.h>
-#include "SimpleConverter.h"
 
 typedef unsigned char uchar;
 
