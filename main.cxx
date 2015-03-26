@@ -76,9 +76,15 @@ static int process_request(struct mg_connection *conn) {
     }
 
     // Getting connection closed Signal by Client and remove the handler for the rsb listener
-    if (conn->wsbits == 136) {
+    if ((conn->wsbits & 0x000F) == WEBSOCKET_OPCODE_CONNECTION_CLOSE) {
       std::cout << "socket closed" << "/" << conn->wsbits << std::endl;
-      rsb_ws_bridge::listenerPtr->removeHandler(rsb_ws_bridge::handlerPtr);
+      if ( rsb_ws_bridge::listenerPtr.get() != 0 ) {
+        if ( rsb_ws_bridge::handlerPtr.get() != 0 ) {
+          rsb_ws_bridge::listenerPtr->removeHandler(rsb_ws_bridge::handlerPtr);
+          rsb_ws_bridge::handlerPtr.reset();
+        }
+        rsb_ws_bridge::listenerPtr.reset();
+      }
     }
 
     return
