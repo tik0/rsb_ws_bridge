@@ -36,6 +36,7 @@ static int currentTimer, lastTimerCam = 0;  //currentTimer holds the actual Time
 static struct timeval tv;
 // RSB
 static rsb::ListenerPtr listenerPtr;
+static rsb::HandlerPtr  handlerPtr;
 static rsb::ParticipantConfig config;
 static rsb::Factory& factory = rsb::Factory::getInstance();
 // RSB WS interaction
@@ -49,7 +50,7 @@ void receiveRsbData(boost::shared_ptr<std::string> e) {
   rsb_ws_bridge::mutex.lock();
   rsb_ws_bridge::newRsbData = true;
   std::cout << "Received RSB event with " << e->size() << " bytes" << std::endl;
-  std::cout << "Payload: " << *e << std::endl;
+//  std::cout << "Payload: " << *e << std::endl;
   rsb_ws_bridge::newRsbPayload = *e;
   rsb_ws_bridge::mutex.unlock();
 }
@@ -68,15 +69,16 @@ static int process_request(struct mg_connection *conn) {
       // Set the new listener configuration
       rsb_ws_bridge::listenerPtr = rsb_ws_bridge::factory.createListener(
           rsb::Scope(rsb_ws_bridge::futureScope), rsb_ws_bridge::config);
+      rsb_ws_bridge::handlerPtr = rsb::HandlerPtr(
+          new rsb::DataFunctionHandler<std::string>(&receiveRsbData));
       rsb_ws_bridge::listenerPtr->addHandler(
-          rsb::HandlerPtr(
-              new rsb::DataFunctionHandler<std::string>(&receiveRsbData)));
+          rsb_ws_bridge::handlerPtr);
     }
 
-    //Getting connection closed Signal by Client
-// 		std::cout << "conn->wsbits: " << conn->wsbits << std::endl;
+    // Getting connection closed Signal by Client and remove the handler for the rsb listener
     if (conn->wsbits == 136) {
       std::cout << "socket closed" << "/" << conn->wsbits << std::endl;
+      rsb_ws_bridge::listenerPtr->removeHandler(rsb_ws_bridge::handlerPtr);
     }
 
     return
@@ -93,6 +95,7 @@ static int ev_handler(struct mg_connection *conn, enum mg_event ev) {
   // If a new CLient connects
   if (ev == MG_WS_HANDSHAKE) {
   }
+
   // If a Client leaves
   if (ev == !MG_REPLY) {
   }
@@ -100,7 +103,9 @@ static int ev_handler(struct mg_connection *conn, enum mg_event ev) {
   // Handle client request (and websocket receives)
   if (ev == MG_REQUEST) {
     return process_request(conn);
-  } else if (ev == MG_AUTH) {  // If not included you have to authenticate to load the homepage
+  }
+
+  if (ev == MG_AUTH) {  // If not included you have to authenticate to load the homepage
     return MG_TRUE;
   }
 
@@ -110,7 +115,7 @@ static int ev_handler(struct mg_connection *conn, enum mg_event ev) {
     if (rsb_ws_bridge::newRsbData) {
       std::cout << "Send WS event with " << rsb_ws_bridge::newRsbPayload.size()
                 << " bytes" << std::endl;
-      std::cout << "Payload: " << rsb_ws_bridge::newRsbPayload << std::endl;
+//      std::cout << "Payload: " << rsb_ws_bridge::newRsbPayload << std::endl;
       mg_websocket_write(conn, 2,
                          (const char*) rsb_ws_bridge::newRsbPayload.c_str(),
                          rsb_ws_bridge::newRsbPayload.size());
