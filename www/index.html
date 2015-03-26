@@ -27,6 +27,10 @@ var twistMsg = ProtoBuf.loadProto(fileContent, null, "Twist.proto").build("rst.k
 var log = document.getElementById("log");
 var text = document.getElementById("text");
 
+window.onbeforeunload = function () {
+  socket.close();
+};
+
 // Connect to our server: node server.js
 var socket = new WebSocket("ws://localhost:8080/ws");
 socket.binaryType = "arraybuffer"; // We are talking binary
@@ -56,6 +60,7 @@ socket.onmessage = function(evt) {
         log.value += "Received: v= " + msg.get("linear").get("x") + " m/s, w=" + msg.get("angular").get("c") +" rad/s\n";
     } catch (err) {
         log.value += "Error: "+err+"\n";
+        socket.close();
     }
 };
 
