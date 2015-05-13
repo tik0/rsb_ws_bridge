@@ -38,4 +38,5 @@ target_link_libraries (
 )
 
 # Additional compiler flags
-ADD_DEFINITIONS (-Wall -Wno-deprecated-declarations -O2 -Wno-write-strings -std=c++11)
+ADD_DEFINITIONS (-Wall -Wno-deprecated-declarations -O2 -Wno-write-strings)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
